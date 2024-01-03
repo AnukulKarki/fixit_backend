@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'fixit.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'fyptest',
+        'NAME': 'fixit',
         'USER':'root',
         'PORT':'3306',
         'HOST': 'localhost'
