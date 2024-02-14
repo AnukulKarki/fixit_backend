@@ -10,3 +10,15 @@ class WorkerModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Worker
         fields = "__all__"
+
+class UserLoginSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length = 100)
+    class Meta:
+        model = User
+        fields = ['email', 'password']
+
+class WorkerLoginSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length = 100)
+    class Meta:
+        model = Worker
+        fields = ['email', 'password']
