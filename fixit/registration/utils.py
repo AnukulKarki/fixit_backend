@@ -3,7 +3,7 @@ import rest_framework_simplejwt.exceptions as exceptions
 
 def verify_access_token(token):
     if not token:
-        return False
+        return False, None
     try:
         access_token = AccessToken(token)
         access_token.verify()

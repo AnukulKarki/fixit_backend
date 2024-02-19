@@ -4,9 +4,10 @@ from registration.utils import verify_access_token
 from rest_framework.response import Response
 from rest_framework import status
 from registration.models import Worker, WorkerProfile
-from rest_framework.generics import ListAPIView
-from .serializer import gigModelSerializer
+from rest_framework.generics import ListAPIView, DestroyAPIView, UpdateAPIView
+from .serializer import gigModelSerializer, gigModelAddSerializer
 from .models import gig 
+
 
 
 
@@ -16,12 +17,17 @@ class GigPostView(APIView):
         verification, payload = verify_access_token(token) 
         if verification:
             if payload['role'].lower() == "worker":
-                serializer = gigModelSerializer(data = request.data)
+                workerId = payload['user_id']
+                serializer = gigModelAddSerializer(data = request.data)
                 if serializer.is_valid():
-                    serializer.save()
+                    userTitle = serializer.data.get("title")
+                    userDescription = serializer.data.get("description")    
+                    userCategory = serializer.data.get("category")
+                    userImage = serializer.data.get("image")
+                    gig.objects.create(title = userTitle, description = userDescription, category_id = userCategory, image = userImage, worker_id = workerId )
                     return Response({'msg':'Successfully Updated'}, status=status.HTTP_201_CREATED)
                 return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
-            
+
             return Response({'msg':'Only Valid to worker'}, status=status.HTTP_401_UNAUTHORIZED)           
 
         return Response({'msg':'Login First'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -31,8 +37,43 @@ class GigListView(APIView):
         token = request.COOKIES.get("token", None)
         verification, payload = verify_access_token(token) 
         if verification:
-            gigData = gig.objects.all()
-            serializer = gigModelSerializer(gigData, many = True)
+            gigData = gig.objects.filter(worker_id = payload['user_id'])
+            serializer = gigModelSerializer(gigData, many = True, context = {"request":self.request})
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({"msg":"Login First"}, status=status.HTTP_401_UNAUTHORIZED)
+#code to edit the gig
+class GigEditView(UpdateAPIView):
+    def post(self, request, *args, **kwargs):
+        token = request.COOKIES.get("token", None)
+        verification, payload = verify_access_token(token) 
+        if verification and payload['role'].lower() == "worker":
+            # try:
+            gigObject = gig.objects.filter(id=kwargs['id'])
+            serializer = gigModelAddSerializer(data = request.data)
+            if serializer.is_valid():
+                updatedTitle = request.data.get("title")
+                updatedDescription = request.data.get("description")
+                updatedCategory = request.data.get("category")
+                updatedImage = request.data.get("image")
+                gigObject.update(title=updatedTitle, description = updatedDescription, category_id = updatedCategory, image = updatedImage, worker_id = payload['user_id'])
+                return Response({"detail":"updated Successfull"}, status=status.HTTP_200_OK)    
+
+            # except:
+                # return Response({"detail":"Gig not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail":"Only valid to worker"}, status=status.HTTP_401_UNAUTHORIZED)
+        
+#code to delete the gig
+class GigDeleteView(APIView):
+    def get(self, request, *args, **kwargs):
+        
+        token = request.COOKIES.get("token", None)
+        verification, payload = verify_access_token(token) 
+        if verification and payload['role'].lower() == "worker":
+            try:
+                gig.objects.get(id=kwargs['id']).delete()
+                return Response({"detail":"Delete Successfully"}, status=status.HTTP_200_OK)
+            except:
+                return Response({"detail":"Gig not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail":"Only valid to worker"}, status=status.HTTP_401_UNAUTHORIZED)
+        
