@@ -40,3 +40,10 @@ class WorkerProfile(models.Model):
     rating = models.IntegerField()
     citizenship_np = models.CharField( max_length=50, null = True)
 
+
+class Category(models.Model):
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
