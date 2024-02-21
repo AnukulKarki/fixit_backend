@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
-THIRD_PARTY_APPS = ['corsheaders','rest_framework', 'jobposting', 'gig' ]
+THIRD_PARTY_APPS = ['corsheaders','rest_framework', 'jobposting', 'gig' , 'category']
 
 PROJECT_APPS = ['registration',]
 
@@ -143,3 +143,12 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
+
+
+from datetime import timedelta
+...
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}
