@@ -8,16 +8,13 @@ class User(models.Model):
     password = models.CharField( max_length=50)
     isKycVerified = models.BooleanField(default = False)
     phone = models.CharField(max_length=50)
-
-class userProfile(models.Model):
-    User = models.OneToOneField(User, on_delete = models.CASCADE, null = True)
     age = models.IntegerField()
     district = models.CharField( max_length=50)
     city = models.CharField( max_length=50)
     street_name = models.CharField( max_length=50)
-    image = models.ImageField(upload_to=None, null=True)
-    rating = models.IntegerField()
-    citizenship_np = models.CharField( max_length=50, null = True)
+    image = models.ImageField(upload_to=None)
+    rating = models.IntegerField(default = 0)
+    citizenship_no = models.CharField( max_length=50)
     
     
 
@@ -29,21 +26,13 @@ class Worker(models.Model):
     password = models.CharField( max_length=50)
     isKycVerified = models.BooleanField(default = False)
     phone = models.CharField(max_length=50)
-
-class WorkerProfile(models.Model):
-    worker = models.OneToOneField(Worker, on_delete = models.CASCADE, null = True)
     age = models.IntegerField()
     district = models.CharField( max_length=50)
     city = models.CharField( max_length=50)
     street_name = models.CharField( max_length=50)
-    image = models.ImageField(upload_to=None, null=True)
-    rating = models.IntegerField()
-    citizenship_np = models.CharField( max_length=50, null = True)
+    image = models.ImageField(upload_to=None)
+    rating = models.IntegerField(default = 0)
+    citizenship_no = models.CharField( max_length=50)
+    
 
-
-class Category(models.Model):
-    name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.name
 

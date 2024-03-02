@@ -23,7 +23,4 @@ class WorkerLoginSerializer(serializers.ModelSerializer):
         model = Worker
         fields = ['email', 'password']
 
-class CategoryModelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = '__all__'
+

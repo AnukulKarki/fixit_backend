@@ -35,7 +35,7 @@ class loginUser(APIView):
                 refresh["role"]="user"
                 access_token = str(refresh.access_token)
                 response= Response({'msg':'Login Successful','token':access_token}, status=status.HTTP_200_OK)
-                response.set_cookie(key='token', value=access_token, max_age=86400)
+                response.set_cookie(key='token', value=access_token, secure=True, httponly=True, samesite="None")
                 return response
             else:
                 return Response({'msg':'Invalid Id or password'}, status=status.HTTP_404_NOT_FOUND)
@@ -60,7 +60,7 @@ class loginWorker(APIView):
                 refresh["role"]="worker"
                 access_token = str(refresh.access_token)
                 response= Response({'msg':'Login Successful'}, status=status.HTTP_200_OK)
-                response.set_cookie('token',access_token, secure=True, httponly=True, samesite='Strict')
+                response.set_cookie('token',access_token, secure=True, httponly=True, samesite='None')
                 return response
             else:
                 return Response({'msg':'Invalid Id or password'}, status=status.HTTP_404_NOT_FOUND)
@@ -71,6 +71,32 @@ class profileView(APIView):
         token = request.COOKIES.get("token", None)
         verification, payload = verify_access_token(token) 
         if verification:
-            return Response({'msg':'Profile Page', 'data':payload}, status=status.HTTP_200_OK)
-        
+            if payload['role'].lower() == 'user':
+                user = User.objects.get(User_id=payload['user_id'])
+                serializer = UserModelSerializer(user, context = {"request":self.request})
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                worker = Worker.objects.get(worker_id=payload['user_id'])
+                serializer = WorkerModelSerializer(worker, context = {"request":self.request})
+                return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({'msg':'Login First'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class LogoutView(APIView):
+    def get(self, request):
+        response = Response({"msg":"Log out successfully"}, status=status.HTTP_200_OK)
+        response.delete_cookie('token')
+        return response
+    
+class UserCheck(APIView):
+    def get(self, request):
+        token = request.COOKIES.get("token", None)
+        verification, payload = verify_access_token(token) 
+        if verification:
+            if payload['role'].lower() == "user":
+                return Response({"role":"user"}, status=status.HTTP_200_OK)
+            elif payload['role'].lower() == "worker":
+                return Response({"role":"worker"}, status=status.HTTP_200_OK)
+            return Response({"msg":"Un-authorized user"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"msg":"Login first"}, status=status.HTTP_403_FORBIDDEN)
+          

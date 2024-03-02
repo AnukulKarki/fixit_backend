@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from registration.utils import verify_access_token
 from rest_framework.response import Response
 from rest_framework import status
-from registration.models import Worker, WorkerProfile
+from registration.models import Worker
 from rest_framework.generics import ListAPIView, DestroyAPIView, UpdateAPIView
 from .serializer import gigModelSerializer, gigModelAddSerializer
 from .models import gig 

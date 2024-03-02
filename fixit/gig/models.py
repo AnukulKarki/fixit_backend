@@ -1,5 +1,6 @@
 from django.db import models
-from registration.models import Worker, Category
+from registration.models import Worker
+from category.models import Category
 
 # Create your models here.
 class gig(models.Model):

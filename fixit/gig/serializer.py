@@ -1,6 +1,7 @@
 from .models import gig
 from rest_framework import serializers
-from registration.serializer import WorkerModelSerializer,CategoryModelSerializer
+from registration.serializer import WorkerModelSerializer
+from category.serializer import CategoryModelSerializer
 from registration.models import Worker
 
 class WorkerModelSerializer(serializers.ModelSerializer):

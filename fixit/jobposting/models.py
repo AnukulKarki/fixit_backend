@@ -1,5 +1,7 @@
 from django.db import models
-from registration.models import User, Category, Worker
+from registration.models import User,  Worker
+from category.models import Category
+from django.utils import timezone
 
 # Create your models here.
 class JobRequirement(models.Model):
@@ -11,17 +13,13 @@ class JobRequirement(models.Model):
     longitude = models.TextField()
     location = models.TextField()
     image = models.ImageField(null= True)
-    category =  models.ForeignKey(Category, on_delete = models.CASCADE , related_name = 'category')
-    user = models.ForeignKey(User,on_delete = models.CASCADE,  related_name = 'user' )
+    category =  models.ForeignKey(Category, on_delete = models.CASCADE , related_name = 'jobreq_category')
+    user = models.ForeignKey(User,on_delete = models.CASCADE,  related_name = 'jobreq_user' )
+    jobStatus = models.CharField(max_length=50, default = "inprogress")
+    created_at = models.DateTimeField(default=timezone.now)
 
 
-class JobApply(models.Model):
-    job = models.ForeignKey(JobRequirement, on_delete = models.CASCADE , related_name = 'job')
-    worker = models.ForeignKey(Worker, on_delete = models.CASCADE , related_name = 'worker')
-    status = models.CharField(max_length = 30)
 
-class Job(models.Model):
-    pass
 
 
 
