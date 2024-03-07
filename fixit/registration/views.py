@@ -32,13 +32,16 @@ class loginUser(APIView):
                 user = None
 
             if user:
+                role = ""
                 refresh = RefreshToken.for_user(user=user)
                 if user.role.lower() == "client":
                     refresh["role"]="client"
+                    role = "client"
                 else:
                     refresh['role'] = "worker"
+                    role = "worker"
                 access_token = str(refresh.access_token)
-                response= Response({'msg':'Login Successful','token':access_token}, status=status.HTTP_200_OK)
+                response= Response({'msg':'Login Successful','token':access_token, 'role':role}, status=status.HTTP_200_OK)
                 response.set_cookie(key='token', value=access_token, secure=True, httponly=True, samesite="None")
                 return response
             else:
@@ -74,8 +77,8 @@ class UserCheck(APIView):
         token = request.COOKIES.get("token", None)
         verification, payload = verify_access_token(token) 
         if verification:
-            if payload['role'].lower() == "user":
-                return Response({"role":"user"}, status=status.HTTP_200_OK)
+            if payload['role'].lower() == "client":
+                return Response({"role":"client"}, status=status.HTTP_200_OK)
             elif payload['role'].lower() == "worker":
                 return Response({"role":"worker"}, status=status.HTTP_200_OK)
             return Response({"msg":"Un-authorized user"}, status=status.HTTP_401_UNAUTHORIZED) 
