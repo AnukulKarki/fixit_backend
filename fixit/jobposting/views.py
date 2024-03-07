@@ -13,7 +13,7 @@ class JobRequirementPostView(APIView):
         token = request.COOKIES.get("token", None)
         verification, payload = verify_access_token(token) 
         if verification:
-            if payload['role'].lower() == "user":
+            if payload['role'].lower() == "client":
                 serializer = JobRequirementAddModelSerializer(data=request.data)
                 if serializer.is_valid():
                     title = request.data.get('title')
@@ -27,7 +27,6 @@ class JobRequirementPostView(APIView):
                     category = request.data.get('category')
 
                     dataCreation = JobRequirement.objects.create(title = title, description = description, budget = budget, isFeatured = isFeatured, latitude = latitude, longitude = longitude, location = location, image = image, category_id = category, user_id = payload['user_id'])
-                    print(dataCreation)
                     return Response({'msg':'Data Entered Successfully'}, status=status.HTTP_200_OK)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
@@ -60,7 +59,7 @@ class JobRequirementListViewUser(APIView):
         token = request.COOKIES.get("token", None)
         verification, payload = verify_access_token(token) 
         if verification:
-            if payload['role'].lower() == "user":
+            if payload['role'].lower() == "client":
                     
                 JobRequirementList  = JobRequirement.objects.filter(user_id = payload['user_id'])
                 serializer = JobRequirementModelSerializer(JobRequirementList, many = True, context = {"request":self.request} )
@@ -79,7 +78,7 @@ class JobRequirementEditView(APIView):
         token = request.COOKIES.get("token", None)
         verification, payload = verify_access_token(token) 
         if verification:
-            if payload['role'].lower() == "user":
+            if payload['role'].lower() == "client":
                 JobRequirementObj = JobRequirement.objects.filter(id = kwargs['id'], user_id = payload['user_id'])
                 if len(JobRequirementObj) == 0:
                     return Response({'msg':'Job Requirement Not Found'}, status=status.HTTP_404_NOT_FOUND)
@@ -108,7 +107,7 @@ class JobRequirementDeleteView(APIView):
         token = request.COOKIES.get("token", None)
         verification, payload = verify_access_token(token) 
         if verification:
-            if payload['role'].lower() == "user":
+            if payload['role'].lower() == "client":
                 try:
                     JobRequirement.objects.get(id = kwargs['id'] , user_id = payload['user_id'] ).delete()
                 except:
@@ -142,7 +141,7 @@ class JobRequirementUserDetailView(APIView):
         token = request.COOKIES.get("token", None)
         verification, payload = verify_access_token(token) 
         if verification:
-            if payload['role'].lower() == "user":
+            if payload['role'].lower() == "client":
                 try:
                     JobRequirementList  = JobRequirement.objects.get(id = kwargs['id'], user_id = payload['user_id'])
                     serializer = JobRequirementModelSerializer(JobRequirementList,  context = {"request":self.request} )

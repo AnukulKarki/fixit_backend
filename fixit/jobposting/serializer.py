@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import JobRequirement
-from registration.serializer import WorkerModelSerializer, UserModelSerializer
+from registration.serializer import UserModelSerializer
 from category.serializer import CategoryModelSerializer
 
 class JobRequirementModelSerializer(serializers.ModelSerializer):

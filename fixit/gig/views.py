@@ -3,7 +3,6 @@ from rest_framework.views import APIView
 from registration.utils import verify_access_token
 from rest_framework.response import Response
 from rest_framework import status
-from registration.models import Worker
 from rest_framework.generics import ListAPIView, DestroyAPIView, UpdateAPIView
 from .serializer import gigModelSerializer, gigModelAddSerializer
 from .models import gig 
@@ -42,6 +41,17 @@ class GigListView(APIView):
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({"msg":"Login First"}, status=status.HTTP_401_UNAUTHORIZED)
+    
+class GigListAllView(APIView):
+    def get(self, request):
+        token = request.COOKIES.get("token", None)
+        verification, payload = verify_access_token(token) 
+        if verification:
+            gigData = gig.objects.all()
+            serializer = gigModelSerializer(gigData, many = True, context = {"request":self.request})
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"msg":"Login First"}, status=status.HTTP_401_UNAUTHORIZED)
 #code to edit the gig
 class GigEditView(UpdateAPIView):
     def post(self, request, *args, **kwargs):
@@ -51,14 +61,19 @@ class GigEditView(UpdateAPIView):
             if payload['role'].lower() == "worker":
                 # try:
                 gigObject = gig.objects.filter(id=kwargs['id'])
-                serializer = gigModelAddSerializer(data = request.data)
-                if serializer.is_valid():
-                    updatedTitle = request.data.get("title")
-                    updatedDescription = request.data.get("description")
-                    updatedCategory = request.data.get("category")
-                    updatedImage = request.data.get("image")
-                    gigObject.update(title=updatedTitle, description = updatedDescription, category_id = updatedCategory, image = updatedImage, worker_id = payload['user_id'])
-                    return Response({"detail":"updated Successfull"}, status=status.HTTP_200_OK)    
+                if len(gigObject) ==0:
+                    return Response({'msg':'gig not found'}, status=status.HTTP_404_NOT_FOUND)
+                if gigObject[0].worker == payload['user_id']:
+
+                    serializer = gigModelAddSerializer(data = request.data)
+                    if serializer.is_valid():
+                        updatedTitle = request.data.get("title")
+                        updatedDescription = request.data.get("description")
+                        updatedCategory = request.data.get("category")
+                        updatedImage = request.data.get("image")
+                        gigObject.update(title=updatedTitle, description = updatedDescription, category_id = updatedCategory, image = updatedImage, worker_id = payload['user_id'])
+                        return Response({"detail":"updated Successfull"}, status=status.HTTP_200_OK)
+                return Response({'msg':'Only Valid to owner'}, status=status.HTTP_401_UNAUTHORIZED)    
 
                 # except:
                     # return Response({"detail":"Gig not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -75,8 +90,12 @@ class GigDeleteView(APIView):
         if verification:
             if payload['role'].lower() == "worker":
                 try:
-                    gig.objects.get(id=kwargs['id'] , worker_id = payload['user_id']).delete()
-                    return Response({"detail":"Delete Successfully"}, status=status.HTTP_200_OK)
+                    gigObj = gig.objects.get(id=kwargs['id'])
+                    if gigObj.worker ==  payload['user_id']:
+                        gigObj.delete()
+                        return Response({"detail":"Delete Successfully"}, status=status.HTTP_200_OK)
+                    else:
+                        return Response({"detail":"Only valid to owner"}, status=status.HTTP_401_UNAUTHORIZED)
                 except:
                     return Response({"detail":"Gig not found"}, status=status.HTTP_404_NOT_FOUND)
             return Response({"detail":"Only valid to worker"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -90,7 +109,7 @@ class GigDetailView(APIView):
         if verification:
             if payload['role'].lower() == "worker":
                 try:
-                    gigObject = gig.objects.get(id=kwargs['id'], worker_id = payload['user_id'])
+                    gigObject = gig.objects.get(id=kwargs['id'])
                     
                     serializer = gigModelSerializer(gigObject, context = {"request":self.request})
                     return Response(serializer.data, status=status.HTTP_200_OK)

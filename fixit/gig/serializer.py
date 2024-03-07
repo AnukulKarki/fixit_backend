@@ -1,13 +1,8 @@
 from .models import gig
 from rest_framework import serializers
-from registration.serializer import WorkerModelSerializer
+from registration.serializer import UserModelDataSerializer
 from category.serializer import CategoryModelSerializer
-from registration.models import Worker
 
-class WorkerModelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Worker
-        fields = ["id","email","firstname", "lastname", "phone"]
 
 class gigModelSerializer(serializers.ModelSerializer):
     # worker = WorkerModelSerializer(many = True)
@@ -21,7 +16,7 @@ class gigModelSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         
         if request and request.method == "GET":
-            fields['worker'] = WorkerModelSerializer()
+            fields['worker'] = UserModelDataSerializer()
             fields['category'] = CategoryModelSerializer()
         
         return fields
