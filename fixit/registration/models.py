@@ -13,7 +13,7 @@ class User(models.Model):
     district = models.CharField( max_length=50)
     city = models.CharField( max_length=50)
     street_name = models.CharField( max_length=50)
-    image = models.ImageField(upload_to=None, null=True)
+    image = models.ImageField(upload_to='image/citizenship', null=True)
     rating = models.IntegerField(default = 0)
     citizenship_no = models.CharField( max_length=50)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)

@@ -8,4 +8,6 @@ urlpatterns = [
     path('api/job/', include('jobposting.urls')),
     path('api/worker/gig/',include('gig.urls')),
     path('api/worker/proposal/',include('proposal.urls')),
+    path('api/category/',include('category.urls')),
+
 ]

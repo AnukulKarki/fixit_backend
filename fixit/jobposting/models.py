@@ -12,7 +12,7 @@ class JobRequirement(models.Model):
     latitude = models.TextField()
     longitude = models.TextField()
     location = models.TextField()
-    image = models.ImageField(null= True)
+    image = models.ImageField(null= True, upload_to='image/jobreq')
     category =  models.ForeignKey(Category, on_delete = models.CASCADE , related_name = 'jobreqcategory')
     user = models.ForeignKey(User,on_delete = models.CASCADE,  related_name = 'jobrequser' )
     jobStatus = models.CharField(max_length=50, default = "inprogress")
