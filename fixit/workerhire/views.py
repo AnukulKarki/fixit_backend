@@ -12,7 +12,7 @@ from jobposting.models import JobRequirement
 #hire the worker, by accepting one and rejecting other at once
 #have to update the job requirement database that worker have been found.
 class WorkerHire(APIView):
-     def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         token = request.COOKIES.get("token", None)
         verification, payload = verify_access_token(token) 
         if verification:
@@ -33,22 +33,30 @@ class WorkerHire(APIView):
                         JobRequirement.objects.filter(id = jobId).update(jobStatus= "accepted")
                         return Response({'msg':'Worker Hired Successfully'}, status = status.HTTP_200_OK)
                 return Response({'msg':'Worker Already Hired'}, status=status.HTTP_403_FORBIDDEN)
-
-
-               
-                return Response({'msg':'Un Authorized user'},status=status.HTTP_404_NOT_FOUND)
             return Response({'msg':'Only Valid to client'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response({"msg":"Login first"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 #Have to create a view to reject the worker.
 class WorkerRejectView(APIView):
-    pass
+    def post(self, request, *args, **kwargs):
+        token = request.COOKIES.get("token", None)
+        verification, payload = verify_access_token(token) 
+        if verification:
+            if payload['role'].lower() == "client":
+                proposalId = kwargs['id']
+               
+                proposalObj = Proposal.objects.filter(id = proposalId)
+                if len(proposalObj) == 0:
+                    return Response({'msg':'not found'}, status=status.HTTP_404_NOT_FOUND)
+                if proposalObj[0].status == 'applied':
+                    if proposalObj[0].job.user_id == payload['user_id']:
+                        proposalObj.update(status="rejected")
+                        return Response({'msg':'Worker Rejected'}, status = status.HTTP_200_OK)
+                    return Response({'msg':'only valid to owner'}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response({'msg':'Cannot reject who have not applied'}, status=status.HTTP_401_UNAUTHORIZED)
+                
+            return Response({'msg':'Only Valid to client'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"msg":"Login first"}, status=status.HTTP_401_UNAUTHORIZED)
 
-#Have to create a view to cancel the worker
-class CancelWorkView(APIView):
-    pass
 
-#Have to create a view to update the work from the worker's POV
-class WorkerWorkUpdate(APIView):
-    pass

@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
-THIRD_PARTY_APPS = ['corsheaders','rest_framework', 'jobposting', 'gig' , 'category','proposal', 'workerhire']
+THIRD_PARTY_APPS = ['corsheaders','rest_framework', 'jobposting', 'gig' , 'category','proposal', 'workerhire','currentwork', 'gighire']
 
 PROJECT_APPS = ['registration',]
 

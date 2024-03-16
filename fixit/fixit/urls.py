@@ -9,5 +9,7 @@ urlpatterns = [
     path('api/worker/gig/',include('gig.urls')),
     path('api/worker/proposal/',include('proposal.urls')),
     path('api/category/',include('category.urls')),
+    path('api/work/', include('currentwork.urls')),
+    path('api/gig/', include('gighire.urls')),
 
 ]

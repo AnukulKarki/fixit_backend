@@ -34,7 +34,7 @@ class ProposalApplyView(APIView):
                         price = request.data.get('price')
                         description = request.data.get('description')
                         Proposal.objects.create(job_id = job, worker_id = worker, price = price, description = description)
-                        return Response({'msg':'Proposal Applied successfully'})
+                        return Response({'msg':'Proposal Applied successfully'}, status=status.HTTP_201_CREATED)
                     return Response(serilizer.errors, status=status.HTTP_400_BAD_REQUEST)
                 return Response({'msg':'Job Requirement is no more valid'}, status=status.HTTP_404_NOT_FOUND)
             return Response({'msg':'Only Valid to worker'}, status=status.HTTP_403_FORBIDDEN)
@@ -52,7 +52,7 @@ class ProposalAppliedWorkerView(APIView):
                 job = kwargs['id']    
                 jobReqObj = JobRequirement.objects.filter(id = job)
                 if jobReqObj[0].jobStatus.lower() == "inprogress":
-                    proposalObj = Proposal.objects.filter(job_id = job, job__user_id = payload['user_id']).select_related('job')
+                    proposalObj = Proposal.objects.filter(job_id = job, job__user_id = payload['user_id'], status="applied").select_related('job')
                     serializer = ProposalApplyWorkerSerializer(proposalObj, many = True,  context = {"request":self.request})
                 
                     return Response(serializer.data, status=status.HTTP_200_OK)

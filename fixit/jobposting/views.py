@@ -27,11 +27,11 @@ class JobRequirementPostView(APIView):
                     category = request.data.get('category')
 
                     dataCreation = JobRequirement.objects.create(title = title, description = description, budget = budget, isFeatured = isFeatured, latitude = latitude, longitude = longitude, location = location, image = image, category_id = category, user_id = payload['user_id'])
-                    return Response({'msg':'Data Entered Successfully'}, status=status.HTTP_200_OK)
+                    return Response({'msg':'Data Entered Successfully'}, status=status.HTTP_201_CREATED)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
-            return Response({'msg':'Only Valid to user'}, status=status.HTTP_403_FORBIDDEN)
-        return Response({'msg':'Login First'}, status=status.HTTP_403_FORBIDDEN)
+            return Response({'msg':'Only Valid to user'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'msg':'Login First'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 
@@ -44,14 +44,14 @@ class JobRequirementListView(APIView):
         verification, payload = verify_access_token(token) 
         if verification:
             #no need to check user as it displays all the data
-            JobRequirementList  = JobRequirement.objects.all()
+            JobRequirementList  = JobRequirement.objects.filter(jobStatus = 'inprogress')
             serializer = JobRequirementModelSerializer(JobRequirementList, many = True, context = {"request":self.request} )
             
             return Response(serializer.data, status=status.HTTP_200_OK)
             
             
         
-        return Response({'msg':'Login First'}, status=status.HTTP_403_FORBIDDEN)
+        return Response({'msg':'Login First'}, status=status.HTTP_401_UNAUTHORIZED)
     
 #Job Requirement Details of particular loged in user only
 class JobRequirementListViewUser(APIView):
@@ -67,8 +67,8 @@ class JobRequirementListViewUser(APIView):
                 return Response(serializer.data, status=status.HTTP_200_OK)
             
         
-            return Response({'msg':'Only Valid to user'}, status=status.HTTP_403_FORBIDDEN)
-        return Response({'msg':'Login First'}, status=status.HTTP_403_FORBIDDEN)
+            return Response({'msg':'Only Valid to user'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'msg':'Login First'}, status=status.HTTP_401_UNAUTHORIZED)
     
     
 
@@ -128,7 +128,7 @@ class JobRequirementDetailView(APIView):
             try:
 
                 JobRequirementList  = JobRequirement.objects.get(id = kwargs['id'])
-                serializer = JobRequirementModelSerializer(JobRequirementList, many = True, context = {"request":self.request} )
+                serializer = JobRequirementModelSerializer(JobRequirementList, context = {"request":self.request} )
 
                 return Response(serializer.data, status=status.HTTP_200_OK)
             except:
@@ -137,7 +137,6 @@ class JobRequirementDetailView(APIView):
     
 class JobRequirementUserDetailView(APIView):
     def get(self, request, *args, **kwargs):
-        
         token = request.COOKIES.get("token", None)
         verification, payload = verify_access_token(token) 
         if verification:

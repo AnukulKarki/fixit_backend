@@ -11,3 +11,5 @@ class Proposal(models.Model):
     description = models.TextField()
     status = models.CharField(max_length = 30, default = "applied")
     accepted_at = models.CharField(null = True, max_length = 100)
+    paymethod = models.CharField(max_length = 10, null= True)
+    amountPayed = models.IntegerField(null = True)

@@ -55,10 +55,9 @@ class profileView(APIView):
         token = request.COOKIES.get("token", None)
         verification, payload = verify_access_token(token) 
         if verification:
-            if payload['role'].lower() == 'user':
-                user = User.objects.get(User_id=payload['user_id'])
-                serializer = UserModelSerializer(user, context = {"request":self.request})
-                return Response(serializer.data, status=status.HTTP_200_OK)
+            user = User.objects.get(id=payload['user_id'])
+            serializer = UserModelSerializer(user, context = {"request":self.request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
             # else:
             #     worker = Worker.objects.get(worker_id=payload['user_id'])
             #     serializer = WorkerModelSerializer(worker, context = {"request":self.request})
@@ -69,11 +68,11 @@ class profileView(APIView):
 class LogoutView(APIView):
     def get(self, request):
         response = Response({"msg":"Log out successfully"}, status=status.HTTP_200_OK)
-        response.delete_cookie('token')
+        response.delete_cookie('token',  samesite="None")
         return response
     
 class UserCheck(APIView):
-    def get(self, request):
+    def get(self, request): 
         token = request.COOKIES.get("token", None)
         verification, payload = verify_access_token(token) 
         if verification:
